@@ -8,9 +8,7 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
-app.listen(process.env.PORT, () => {
-    console.log("Server is running on port 3000 and connected to Supabase");
-});
+
 
 app.post('/auth/signup', async (req: Request, res: Response, next) => {
 
@@ -48,8 +46,29 @@ app.post('/auth/login', async (req: Request, res: Response, next) => {
 
 });
 
+app.get('/public/info', (req: Request, res: Response) => {
+  res.status(200).json({ message: 'Welcome Stranger, this is public info' });
+});
+
+app.get('/private/info', (req: Request, res: Response) => {
+  const authorization = req.header('Authorization');
+
+  if (!authorization ||
+    authorization.length === 0 ||
+    typeof authorization !== 'string' ||
+    authorization.split('.').length !==3) {
+    return res.status(401).json({ error: 'Authorization header is missing or malformed' });
+  }
+
+  return res.status(200).json({ auth: authorization });
+
+});
+
 app.use((err: Error, req: Request, res: Response) => {
-  console.error(err.message);
-  res.status(500).send()
+  res.status(500).send(err)
   return
+});
+
+app.listen(process.env.PORT, () => {
+    console.log("Server is running on port 3000 and connected to Supabase");
 });
