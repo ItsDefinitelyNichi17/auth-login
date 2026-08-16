@@ -3,7 +3,10 @@ import type { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import { supabase } from './supabase';
 import { AuthTokenResponsePassword } from '@supabase/supabase-js';
-import e from 'express';
+import fs from 'fs';
+import path from 'path';
+import swaggerUi from 'swagger-ui-express';
+
 dotenv.config();
 
 interface AuthRequest extends Request {
@@ -16,7 +19,13 @@ interface AuthRequest extends Request {
 }
 
 const app = express();
+const openapiSpec = JSON.parse(
+  fs.readFileSync(new URL('./openapi.json', import.meta.url), 'utf-8')
+);
+
 app.use(express.json());
+
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(openapiSpec));
 
 app.post('/auth/signup', async (req: Request, res: Response, next) => {
 

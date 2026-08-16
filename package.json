@@ -12,9 +12,13 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.112.3",
     "dotenv": "^17.4.2",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "swagger-json": "^2.0.0",
+    "swagger-ui-express": "^5.0.1",
+    "tsx": "^4.23.12"
   },
   "devDependencies": {
-    "@types/express": "^5.0.6"
+    "@types/express": "^5.0.6",
+    "@types/swagger-ui-express": "^4.1.8"
   }
 }
