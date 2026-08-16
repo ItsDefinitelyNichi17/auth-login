@@ -3,17 +3,16 @@ import type { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import { supabase } from './supabase';
 import { AuthTokenResponsePassword } from '@supabase/supabase-js';
+import e from 'express';
 dotenv.config();
 
 const app = express();
 app.use(express.json());
 
-
-
 app.post('/auth/signup', async (req: Request, res: Response, next) => {
 
   const { email, password } = req.body;
-  console.log(req.body)
+
   if (!email ||!password) {
      res.status(400).json({ error: 'Email and password are required' });
      return;
@@ -50,17 +49,27 @@ app.get('/public/info', (req: Request, res: Response) => {
   res.status(200).json({ message: 'Welcome Stranger, this is public info' });
 });
 
-app.get('/private/info', (req: Request, res: Response) => {
-  const authorization = req.header('Authorization');
+app.get('/protected/profile', async (req: Request, res: Response) => {
+  const token = req.header('Authorization');
 
-  if (!authorization ||
-    authorization.length === 0 ||
-    typeof authorization !== 'string' ||
-    authorization.split('.').length !==3) {
+  if (!token ||
+    token.length === 0 ||
+    typeof token !== 'string' ||
+    token.split('.').length !==3) {
     return res.status(401).json({ error: 'Authorization header is missing or malformed' });
   }
 
-  return res.status(200).json({ auth: authorization });
+  const validate = await supabase.auth.getUser(token);
+  if (validate.error) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+
+
+  return res.status(200).json({
+    id: validate.data.user.id,
+    email: validate.data.user.email,
+    account_created: validate.data.user.created_at,
+  });
 
 });
 
